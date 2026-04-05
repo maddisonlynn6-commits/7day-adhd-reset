@@ -1,0 +1,24 @@
+{
+  "name": "7 Day ADHD Reset Challenge",
+  "short_name": "ADHD Reset",
+  "description": "Track your daily habits and complete the 7-day ADHD reset challenge",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fff5fa",
+  "theme_color": "#ff1493",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' fill='%23ff1493'/%3E%3Ctext x='50%' y='50%' font-size='80' font-weight='bold' fill='white' text-anchor='middle' dominant-baseline='middle'%3E7%3C/text%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' fill='%23ff1493'/%3E%3Ctext x='50%' y='50%' font-size='300' font-weight='bold' fill='white' text-anchor='middle' dominant-baseline='middle'%3E7%3C/text%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

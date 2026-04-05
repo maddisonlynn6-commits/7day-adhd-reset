@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#ff1493">
+    <meta name="description" content="7 Day ADHD Reset Challenge - Track your daily habits for ADHD wellness">
+    <link rel="manifest" href="manifest.json">
+    <title>7 Day ADHD Reset Challenge</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #ff1493;
+            --primary-light: #ff69b4;
+            --primary-dark: #c71585;
+            --light-bg: #fff5fa;
+            --text-dark: #333;
+            --text-light: #666;
+            --success: #4caf50;
+            --optional: #ffc107;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #fff5fa 0%, #ffe6f0 100%);
+            color: var(--text-dark);
+            min-height: 100vh;
+            padding-bottom: 20px;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            width: 180px;
+            height: auto;
+            margin: 0 auto 15px;
+            display: block;
+        }
+
+        h1 {
+            font-size: 24px;
+            color: var(--primary-dark);
+            font-weight: 700;
+            margin-bottom: 10px;
+            letter-spacing: -0.5px;
+        }
+
+        .day-display {
+            font-size: 14px;
+            color: var(--text-light);
+            margin-bottom: 20px;
+        }
+
+        .progress-container {
+            margin-bottom: 25px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 20, 147, 0.15);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--primary-light));
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        .level-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--text-light);
+            font-weight: 600;
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(255, 20, 147, 0.1);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .tasks-section {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(255, 20, 147, 0.1);
+        }
+
+        .tasks-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 15px;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            background: var(--light-bg);
+            transition: all 0.2s ease;
+        }
+
+        .task-item.optional {
+            background: rgba(255, 193, 7, 0.08);
+        }
+
+        .task-item.completed {
+            background: rgba(76, 175, 80, 0.08);
+        }
+
+        .task-item.completed .task-label {
+            text-decoration: line-through;
+            color: var(--text-light);
+        }
+
+        .checkbox {
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--primary);
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+            background: white;
+        }
+
+        .checkbox:active {
+            transform: scale(0.95);
+        }
+
+        .task-item.completed .checkbox {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+            font-weight: 700;
+        }
+
+        .task-content {
+            flex: 1;
+        }
+
+        .task-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 2px;
+        }
+
+        .task-item.optional .task-label {
+            color: var(--optional);
+        }
+
+        .task-description {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        .info-btn {
+            background: none;
+            border: none;
+            color: var(--primary);
+            font-size: 18px;
+            cursor: pointer;
+            padding: 4px 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 8px;
+            flex-shrink: 0;
+            transition: transform 0.2s ease;
+        }
+
+        .info-btn:hover {
+            transform: scale(1.15);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.2s;
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 25px;
+            border-radius: 12px;
+            max-width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-light);
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-body {
+            color: var(--text-light);
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        .modal-body p {
+            margin-bottom: 12px;
+        }
+
+        .modal-body strong {
+            color: var(--text-dark);
+        }
+
+        /* Popup Styles */
+        .popup {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            background: white;
+            padding: 40px 30px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: popupAppear 0.4s ease;
+            max-width: 280px;
+        }
+
+        .popup.show {
+            display: block;
+        }
+
+        @keyframes popupAppear {
+            0% {
+                transform: translate(-50%, -50%) scale(0.6);
+                opacity: 0;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+        }
+
+        .popup-emoji {
+            font-size: 60px;
+            margin-bottom: 15px;
+            animation: bounce 0.6s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .popup-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .popup-text {
+            font-size: 16px;
+            color: var(--text-light);
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .popup-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .popup-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        /* Start Date Modal */
+        .start-date-modal {
+            display: none;
+        }
+
+        .start-date-modal.show {
+            display: flex;
+        }
+
+        .date-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 16px;
+            margin: 20px 0;
+            font-family: inherit;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: var(--light-bg);
+            color: var(--text-dark);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary-light);
+            color: white;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            .container {
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 20px;
+            }
+
+            .logo {
+                width: 140px;
+            }
+
+            .stat-value {
+                font-size: 28px;
+            }
+
+            .modal-content {
+                max-width: 95%;
+                padding: 20px;
+            }
+
+            .popup {
+                max-width: 250px;
+                padding: 30px 20px;
+            }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 800'%3E%3Crect width='1000' height='800' fill='%23000'/%3E%3C/svg%3E" alt="Her Rebirth" class="logo" id="logoPlaceholder">
+            <h1>7 Day ADHD Reset Challenge</h1>
+            <div class="day-display">
+                Day <span id="currentDay">1</span> of 7
+            </div>
+        </header>
+
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="level-labels">
+                <span>Day 1</span>
+                <span>Day 7</span>
+            </div>
+        </div>
+
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-label">Today</div>
+                <div class="stat-value"><span id="todayCount">0</span>/11</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Streak</div>
+                <div class="stat-value" id="streakCount">0</div>
+            </div>
+        </div>
+
+        <div class="tasks-section">
+            <div class="tasks-title">Today's Tasks</div>
+            <div id="tasksList"></div>
+        </div>
+    </div>
+
+    <!-- Start Date Modal -->
+    <div class="modal start-date-modal" id="startDateModal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <div class="modal-title">Welcome! 🎉</div>
+            </div>
+            <div class="modal-body">
+                <p>Let's start your 7-day ADHD reset journey. When did you start (or want to start)?</p>
+                <input type="date" id="startDateInput" class="date-input">
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="setStartDate()">Start Challenge</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Info Modal -->
+    <div class="modal" id="infoModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" id="infoTitle"></div>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="infoBody"></div>
+        </div>
+    </div>
+
+    <!-- Congratulations Popup -->
+    <div class="popup" id="congratsPopup">
+        <div class="popup-emoji">🎉</div>
+        <div class="popup-title">Incredible!</div>
+        <div class="popup-text">You've crushed all your daily tasks. You're absolutely smashing it!</div>
+        <button class="popup-btn" onclick="closePopup('congratsPopup')">Next Day</button>
+    </div>
+
+    <!-- Optional Task Bonus Popup -->
+    <div class="popup" id="bonusPopup">
+        <div class="popup-emoji">✨</div>
+        <div class="popup-title">Bonus Task!</div>
+        <div class="popup-text">Amazing! You completed the infrared sauna. Extra recovery vibes earned!</div>
+        <button class="popup-btn" onclick="closePopup('bonusPopup')">Nice!</button>
+    </div>
+
+    <script>
+        const TASKS = [
+            {
+                id: 'sunlight',
+                label: 'Morning Sunlight',
+                description: 'Outdoors without sunglasses',
+                optional: false,
+                info: `<strong>Why this matters for ADHD:</strong><br><br>Natural light exposure as early as possible after waking triggers a cascade of neurological and hormonal events that directly support focus, mood, and energy.<br><br>Morning light stimulates your brain's master circadian clock, which sets the timing of cortisol release, melatonin onset, and dopamine availability across the entire day. Research shows that correcting delayed circadian phase with morning bright light predicts measurable improvement in ADHD symptoms including attention and emotional regulation.<br><br>Go outside without sunglasses to allow blue-spectrum wavelengths to reach your retina (not staring at the sun—just natural light).<br><br><strong>Impact:</strong> Sets your whole day's dopamine and attention baseline.`
+            },
+            {
+                id: 'exercise',
+                label: 'Exercise 45 minutes',
+                description: 'Strength, Pilates, or walking',
+                optional: false,
+                info: `<strong>Why this matters for ADHD:</strong><br><br>Exercise directly increases dopamine, norepinephrine, and serotonin—the same neurotransmitters that ADHD medication targets. A 45-minute session has been shown to improve executive function, attention, and working memory for several hours post-exercise.<br><br>Rotating between high and low impact across the week supports nervous system recovery and prevents burnout, which is especially important for ADHD brains that are prone to all-or-nothing cycles.<br><br><strong>Impact:</strong> Immediate boost to focus, mood, and cognitive function.`
+            },
+            {
+                id: 'water',
+                label: 'Drink 3L of water',
+                description: 'Throughout the day',
+                optional: false,
+                info: `<strong>Why this matters for ADHD:</strong><br><br>Your brain is approximately 75% water. Even mild dehydration of 1-2% of body weight has been shown to impair cognitive performance, mood, and concentration.<br><br>Dehydration directly impairs attention, working memory, mood, and overall cognitive performance. Staying hydrated is non-negotiable for ADHD brain function.<br><br><strong>Impact:</strong> Maintains baseline cognitive function and mood stability.`
+            },
+            {
+                id: 'electrolytes',
+                label: '500ml water + electrolytes',
+                description: 'Upon waking',
+                optional: false,
+                info: `<strong>Why this matters for ADHD:</strong><br><br>Starting your morning with 500ml of water and electrolytes replenishes overnight losses and kick-starts brain function before the demands of the day begin.<br><br>Electrolytes (sodium, potassium, magnesium, and calcium) support electrical signalling between neurons, helping reduce brain fog and improve mental energy.<br><br><strong>Impact:</strong> Activates your brain first thing in the morning.`
+            },
+            {
+                id: 'phonefree',
+                label: 'Phone down 60 minutes',
+                description: 'Before bed',
+                optional: false,
+                info: `<strong>Why this matters for ADHD:</strong><br><br>Blue light from screens suppresses melatonin production and keeps the brain in a stimulated state that directly competes with sleep onset.<br><br>For ADHD brains that already struggle with executive function and impulse control, phone stimulation before bed creates a double problem: it prevents sleep AND it trains your brain to expect constant novelty. Charging your phone outside the bedroom removes the temptation to scroll and creates a genuine wind-down environment.<br><br><strong>Impact:</strong> Allows melatonin to build and creates mental space for sleep.`
+            },
+            {
+                id: 'sleep',
+                label: '7-9 hours sleep',
+                description: 'Quality rest is crucial',
+                optional: false,
+                info: `<strong>Why this matters for ADHD:</strong><br><br>Sleep is when the brain clears metabolic waste, consolidates memory, and resets the dopamine system. For an ADHD brain, this is not optional—it's foundational.<br><br>During deep sleep, your prefrontal cortex (the area most affected by ADHD) repairs its executive function systems. Without adequate sleep, all the other interventions in this challenge become significantly less effective.<br><br><strong>Impact:</strong> Restores executive function and emotional regulation systems.`
+            },
+            {
+                id: 'reading',
+                label: 'Read 15 pages',
+                description: 'Non-fiction book',
+                optional: false,
+                info: `<strong>Why this matters for ADHD:</strong><br><br>Reading trains the very skill ADHD brains struggle with most: sustained, voluntary attention. Non-fiction specifically activates the prefrontal cortex, the area most affected by ADHD.<br><br>Even 15 pages a day, done consistently, builds attentional stamina over time. Think of it as a workout for your executive function. The neuroplasticity gains from consistent reading compound across the week.<br><br><strong>Impact:</strong> Strengthens the neural pathways for sustained attention.`
+            },
+            {
+                id: 'breakfast',
+                label: 'High protein breakfast',
+                description: 'Start strong',
+                optional: false,
+                info: `<strong>Why this matters for ADHD:</strong><br><br>High protein breakfasts help ADHD-related symptoms through several pathways:<br><br>• <strong>Dopamine supply:</strong> Protein provides amino acids used to produce dopamine and norepinephrine<br>• <strong>Blood glucose stability:</strong> Protein slows digestion and reduces rapid blood sugar spikes that worsen attention fluctuations<br>• <strong>Cognitive performance:</strong> Breakfast consumption in general is associated with better attention, reaction time, and executive function<br><br><strong>Impact:</strong> Sets your morning neurotransmitter baseline.`
+            },
+            {
+                id: 'noalcohol',
+                label: 'No alcohol',
+                description: 'Give your brain a break',
+                optional: false,
+                info: `<strong>Why this matters for ADHD:</strong><br><br>Alcohol disrupts the dopamine system at a neurological level. It produces an artificial dopamine spike followed by a significant crash, which can worsen ADHD symptoms, mood instability, and impulsivity for 24-72 hours post-consumption.<br><br>It also severely fragments sleep architecture, reducing the deep sleep your brain needs to reset its executive function and emotional regulation systems. For a 7-day reset, eliminating alcohol allows your dopamine system to stabilize.<br><br><strong>Impact:</strong> Prevents dopamine crashes and protects sleep quality.`
+            },
+            {
+                id: 'magnesium',
+                label: 'Magnesium glycinate',
+                description: 'Before bed',
+                optional: false,
+                info: `<strong>Why this matters for ADHD:</strong><br><br>Magnesium has the strongest ADHD-specific evidence of any non-prescription supplement. Research has shown that a significant proportion of individuals with ADHD have lower magnesium levels compared to neurotypical controls.<br><br>The glycinate form is chosen specifically for its high bioavailability and calming effect on the nervous system. It binds to GABA receptors, supporting relaxation, sleep onset, and reduced anxiety. It also supports the enzyme systems involved in dopamine regulation.<br><br><strong>Typical dose:</strong> 200-400mg before bed<br><strong>Impact:</strong> Calms the nervous system and improves sleep quality.`
+            },
+            {
+                id: 'creatine',
+                label: 'Creatine monohydrate',
+                description: '10-20g daily (split doses)',
+                optional: false,
+                info: `<strong>Why this matters for ADHD:</strong><br><br>The brain uses creatine to regenerate ATP, the primary energy currency for neurons. Supplementing creatine has been shown in multiple studies to reduce mental fatigue, improve working memory, and support cognitive function under pressure.<br><br>For ADHD brains that often feel mentally drained by mid-morning, creatine provides meaningful neurological support. The cognitive benefits are particularly pronounced for people with lower baseline creatine availability.<br><br><strong>Typical dose:</strong> 10-20g daily (5-10g per dose, split across 2-3 doses)<br><strong>Note:</strong> Take it at this cognitive level, not just for muscle-building. Split dosing prevents digestive discomfort.<br><br><strong>Impact:</strong> Sustains mental energy and improves working memory.`
+            },
+            {
+                id: 'sauna',
+                label: 'Infrared sauna',
+                description: 'Optional - 20-30 minutes',
+                optional: true,
+                info: `<strong>Why this bonus task matters:</strong><br><br>The infrared sauna has become one of the most powerful parts of recovery, not just for physical recovery, but for calming the nervous system and anxiety.<br><br>Published research confirms that sauna use triggers a significant rise in beta-endorphins and dopamine that persist well after the session ends. A randomised clinical trial found that a single session of whole-body hyperthermia produced a significant reduction in depressive symptoms that persisted for six weeks.<br><br>Finishing your sauna 1.5-2 hours before bed raises then lowers core temperature, triggering melatonin release and improving deep sleep quality.<br><br><strong>Recommended:</strong> 20-30 minutes at 54-66°C every second day<br><strong>Impact:</strong> Powerful nervous system reset and deep recovery.`
+            }
+        ];
+
+        let appState = {
+            startDate: null,
+            currentDay: 1,
+            completedTasks: {},
+            streakDays: 0,
+            lastCompletedDate: null
+        };
+
+        function initApp() {
+            loadState();
+            if (!appState.startDate) {
+                showStartDateModal();
+            } else {
+                updateDay();
+                renderTasks();
+                updateStats();
+            }
+        }
+
+        function showStartDateModal() {
+            document.getElementById('startDateModal').classList.add('show');
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('startDateInput').value = today;
+        }
+
+        function setStartDate() {
+            const dateInput = document.getElementById('startDateInput').value;
+            if (!dateInput) {
+                alert('Please select a date');
+                return;
+            }
+            appState.startDate = dateInput;
+            appState.completedTasks = {};
+            appState.streakDays = 0;
+            saveState();
+            document.getElementById('startDateModal').classList.remove('show');
+            updateDay();
+            renderTasks();
+            updateStats();
+        }
+
+        function updateDay() {
+            const startDate = new Date(appState.startDate);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            startDate.setHours(0, 0, 0, 0);
+
+            let dayDiff = Math.floor((today - startDate) / (1000 * 60 * 60 * 24)) + 1;
+            dayDiff = Math.max(1, Math.min(7, dayDiff));
+            appState.currentDay = dayDiff;
+
+            document.getElementById('currentDay').textContent = appState.currentDay;
+
+            const progress = (appState.currentDay / 7) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+
+            initializeDayTasks();
+        }
+
+        function initializeDayTasks() {
+            const today = new Date().toISOString().split('T')[0];
+            if (!appState.completedTasks[today]) {
+                appState.completedTasks[today] = {};
+                TASKS.forEach(task => {
+                    appState.completedTasks[today][task.id] = false;
+                });
+                saveState();
+            }
+        }
+
+        function renderTasks() {
+            const today = new Date().toISOString().split('T')[0];
+            const tasksList = document.getElementById('tasksList');
+            tasksList.innerHTML = '';
+
+            TASKS.forEach(task => {
+                const isCompleted = appState.completedTasks[today]?.[task.id] || false;
+                const taskEl = document.createElement('div');
+                taskEl.className = `task-item ${isCompleted ? 'completed' : ''} ${task.optional ? 'optional' : ''}`;
+
+                taskEl.innerHTML = `
+                    <div class="checkbox" onclick="toggleTask('${task.id}')">${isCompleted ? '✓' : ''}</div>
+                    <div class="task-content">
+                        <div class="task-label">${task.label}</div>
+                        <div class="task-description">${task.description}</div>
+                    </div>
+                    <button class="info-btn" onclick="showInfo('${task.id}')">ℹ️</button>
+                `;
+
+                tasksList.appendChild(taskEl);
+            });
+        }
+
+        function toggleTask(taskId) {
+            const today = new Date().toISOString().split('T')[0];
+            appState.completedTasks[today][taskId] = !appState.completedTasks[today][taskId];
+            saveState();
+            renderTasks();
+            updateStats();
+
+            const task = TASKS.find(t => t.id === taskId);
+            if (appState.completedTasks[today][taskId] && task.optional) {
+                setTimeout(() => showPopup('bonusPopup'), 300);
+            }
+
+            checkAllTasksCompleted();
+        }
+
+        function checkAllTasksCompleted() {
+            const today = new Date().toISOString().split('T')[0];
+            const requiredTasks = TASKS.filter(t => !t.optional);
+            const allCompleted = requiredTasks.every(t => appState.completedTasks[today]?.[t.id]);
+
+            if (allCompleted && appState.lastCompletedDate !== today) {
+                appState.lastCompletedDate = today;
+                updateStreak();
+                saveState();
+                setTimeout(() => showPopup('congratsPopup'), 600);
+            }
+        }
+
+        function updateStreak() {
+            const today = new Date().toISOString().split('T')[0];
+            const lastDate = appState.lastCompletedDate ? new Date(appState.lastCompletedDate) : null;
+            const todayDate = new Date(today);
+
+            if (!lastDate) {
+                appState.streakDays = 1;
+            } else {
+                const diffTime = todayDate - lastDate;
+                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+                if (diffDays === 1) {
+                    appState.streakDays++;
+                } else if (diffDays === 0) {
+                    // Same day
+                } else {
+                    appState.streakDays = 1;
+                }
+            }
+        }
+
+        function updateStats() {
+            const today = new Date().toISOString().split('T')[0];
+            const completedCount = Object.values(appState.completedTasks[today] || {}).filter(v => v).length;
+            document.getElementById('todayCount').textContent = completedCount;
+            document.getElementById('streakCount').textContent = appState.streakDays;
+        }
+
+        function showInfo(taskId) {
+            const task = TASKS.find(t => t.id === taskId);
+            document.getElementById('infoTitle').textContent = task.label;
+            document.getElementById('infoBody').innerHTML = task.info;
+            document.getElementById('infoModal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('infoModal').classList.remove('show');
+        }
+
+        function showPopup(popupId) {
+            document.getElementById(popupId).classList.add('show');
+        }
+
+        function closePopup(popupId) {
+            document.getElementById(popupId).classList.remove('show');
+        }
+
+        function saveState() {
+            localStorage.setItem('adhd-app-state', JSON.stringify(appState));
+        }
+
+        function loadState() {
+            const saved = localStorage.getItem('adhd-app-state');
+            if (saved) {
+                appState = JSON.parse(saved);
+            }
+        }
+
+        // Close modal when clicking outside
+        document.addEventListener('click', function(event) {
+            const infoModal = document.getElementById('infoModal');
+            if (event.target === infoModal) {
+                closeModal();
+            }
+        });
+
+        // Initialize app on load
+        window.addEventListener('load', initApp);
+
+        // Register service worker for PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js').catch(err => {
+                console.log('Service Worker registration failed:', err);
+            });
+        }
+    </script>
+</body>
+</html>
